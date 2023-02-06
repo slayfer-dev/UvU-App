@@ -17,6 +17,7 @@ function NavList({
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
   return (
     <ul
       className={`menu ${
