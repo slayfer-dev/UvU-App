@@ -25,7 +25,7 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
               </svg>
             </label>
           </div>
-          <div className="flex gap-6 items-center px-2 mx-2 w-full m-auto">
+          <div className="flex gap-6 items-center px-2 mx-2 w-full m-auto z-20">
             <span className="font-semibold text-xl tracking-tight relative lg:static top-0 left-0 w-full text-center">
               <Link
                 href="/"
@@ -44,7 +44,7 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         </div>
-        <main role={"main"} className={`mt-0 md:mt-6`}>
+        <main role={"main"} className={`mt-0 md:mt-6 max-h-[calc(100vh-8rem)]`}>
           {children}
         </main>
       </section>
