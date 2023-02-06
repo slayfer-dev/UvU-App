@@ -32,7 +32,7 @@ export default function Chat() {
   return (
     <div className="p-10 h-full flex m-auto items-center justify-center">
       <div
-        className={`flex flex-col w-full md:w-1/2 lg:w-1/4 bg-white shadow-xl rounded-l-lg overflow-y-auto h-full items-center justify-center relative ${
+        className={`flex flex-col w-full md:w-1/2 lg:w-1/4 bg-white shadow-xl rounded-l-lg overflow-y-auto h-full p-1 gap-1 relative ${
           toggle ? "rounded-r-lg" : "hidden"
         }`}
       >
@@ -45,7 +45,7 @@ export default function Chat() {
         )}
         {[...Array(4)].map((_, i) => (
           <button
-            key={i}
+            key={`data_acompañantes_${i}`}
             className={`flex flex-col h-fit p-4 hover:bg-black/10 border border-black/20 rounded-lg`}
           >
             <div className={`flex w-full mt-2 space-x-3 max-w-xs`}>
@@ -78,6 +78,7 @@ export default function Chat() {
         <div className={`flex flex-col h-full p-4 overflow-auto justify-end`}>
           {data.map((item, i) => (
             <div
+              key={`data_chat_${i}`}
               className={`flex w-full mt-2 space-x-3 max-w-xs ${
                 item.isUser ? " ml-auto justify-end" : ""
               }`}
