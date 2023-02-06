@@ -1,11 +1,29 @@
 import type { AppProps } from "next/app";
 import "../styles/globals.css";
+import { Suspense, useEffect, useState } from "react";
+import Navbar from "@/components/Navbar";
+import Loading from "@/components/Loading";
+import Layout from "@/components/Layout";
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const [loadingState, setLoadingState] = useState<Boolean>(true);
+
+  useEffect(() => {
+    setLoadingState(false);
+    return () => setLoadingState(true);
+  }, []);
+
+  if (loadingState) {
+    return <Loading />;
+  }
   return (
-    <div className={"w-4/5 xl:w-9/12 mx-auto"}>
-      <Component {...pageProps} />
-    </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="w-screen flex flex-col h-screen max-h-screen content-center">
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </div>
+    </Suspense>
   );
 }
 
