@@ -18,6 +18,9 @@ module.exports = {
           alt: "#999999",
         },
       },
+      transitionProperty: {
+        width: "width",
+      },
     },
   },
   plugins: [require("daisyui")],

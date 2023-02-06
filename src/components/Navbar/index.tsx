@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import NavLinks from "./NavLinks";
 
 export default function Navbar({ children }: { children: React.ReactNode }) {
@@ -44,7 +43,7 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         </div>
-        <main role={"main"} className={`mt-0 md:mt-6 min-h-[calc(100vh-8rem)]`}>
+        <main role={"main"} className={`mt-0 md:mt-6 h-[calc(100vh-8rem)]`}>
           {children}
         </main>
       </section>

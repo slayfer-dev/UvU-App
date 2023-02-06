@@ -13,87 +13,124 @@ if (!COHERE_API_KEY) {
 
 cohere.init(COHERE_API_KEY);
 
+let dataIn: { category: string; input: string }[] = [];
+let dataOut: { category: string; input: string; output: string }[] = [];
+
+const populateData = async () => {
+  return fetch(
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_YApcplKoBDVQiiSAU9CYpnNks0QD5IPmBhlw5t_QdQmywB5o2T8HjuxJAvM6RvKtNBCWdDBvBuir/pub?output=tsv"
+  )
+    .then((res) => res.text())
+    .then((res) => {
+      const matrixData = res
+        .replace(/[-\r]/g, "")
+        .split("\n")
+        .map((el) => el.split("\t").map((data) => data.trim()))
+        .slice(1);
+
+      const formatDataIn = matrixData
+        .filter((el) => {
+          const [input] = el;
+          return Boolean(input);
+        })
+        .map((el) => {
+          const [category, input] = el;
+          return {
+            category,
+            input,
+          };
+        });
+
+      const formatDataOut = matrixData
+        .filter((el) => {
+          const [, , output] = el;
+          return Boolean(output);
+        })
+        .map((el) => {
+          const [category, input, output] = el;
+          return {
+            category,
+            output,
+            input,
+          };
+        });
+
+      return { formatDataIn, formatDataOut };
+    });
+};
+
+const onInitPopulateData = async () => {
+  const { formatDataIn, formatDataOut } = await populateData();
+
+  dataIn = formatDataIn;
+  dataOut = formatDataOut;
+};
+
+setInterval(onInitPopulateData, 1000 * 60 * 60 * 24);
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
   try {
-    const { question, companyData } = req.body;
+    const { formatDataIn, formatDataOut } =
+      dataIn.length && dataOut.length
+        ? { formatDataIn: dataIn, formatDataOut: dataOut }
+        : await populateData();
 
-    const inputs = ["Tengo incertidumbre sobre mi futuro", "Me siento bien"];
+    const { message } = req.body;
 
-    const examples = [
-      {
-        label: "Positive",
-        text: "Me siento bien",
-      },
-      {
-        label: "Positive",
-        text: "Tuve un buen dia",
-      },
-      {
-        label: "Positive",
-        text: "Estoy feliz",
-      },
-      {
-        label: "Positive",
-        text: "Creo que estoy progesando",
-      },
-      {
-        label: "Neutral",
-        text: "No se como me siento",
-      },
-      {
-        label: "Neutral",
-        text: "No se que decir",
-      },
-      {
-        label: "Neutral",
-        text: "No tengo nada que decir",
-      },
-      {
-        label: "Neutral",
-        text: "No estoy seguro",
-      },
-      {
-        label: "Neutral",
-        text: "No entiendo nada",
-      },
-      {
-        label: "Negative",
-        text: "Estoy triste",
-      },
-      {
-        label: "Negative",
-        text: "Estoy deprimido",
-      },
-      {
-        label: "Negative",
-        text: "Me siento mal",
-      },
-      {
-        label: "Negative",
-        text: "Creo que estoy decayendo",
-      },
-      {
-        label: "Negative",
-        text: "Me estoy preocupando",
-      },
+    const inputs = [message];
+
+    const trainData = [
+      ...formatDataIn.map((el) => {
+        const { category, input } = el;
+        return {
+          label: category,
+          text: input,
+        };
+      }),
     ];
 
-    const response2 = await cohere
+    const feeling = await cohere
       .classify({
         model: "large",
         inputs,
-        examples: examples,
+        examples: trainData,
       })
       .then((response) => {
-        console.log(response.body);
+        const {
+          classifications: [{ prediction, confidence }],
+        } = response.body;
+        if (confidence > 0.5) {
+          return prediction;
+        }
+        return "No se";
       });
+
+    const purpouse =
+      `Generar mensajes que puedan ayudar a las personas a sentirse mejor\n\n` +
+      `Sentimiento: No se\n` +
+      `Mensaje: ${inputs[0]}\n` +
+      `Respuesta: Cuentame mas que te estoy acompañando.\n\n--\n` +
+      `Sentimiento: No se\n` +
+      `Mensaje: ${inputs[0]}\n` +
+      `Respuesta: Es algo confuso para mi, pero aqui estoy para ti.\n\n--\n` +
+      `Sentimiento: No se\n` +
+      `Mensaje: ${inputs[0]}\n` +
+      `Respuesta: Quizas me sea dificil entender como te sientes, pero te estare apoyando.\n\n--\n`;
+
+    const promtData = formatDataOut
+      .filter((el) => el.category === feeling)
+      .map((el) => {
+        const { input, output } = el;
+        return `Sentimiento: ${feeling}\nMensaje: ${input}\nRespuesta: ${output}\n\n`;
+      })
+      .join("--\n");
 
     const response = await cohere.generate({
       model: "xlarge",
-      prompt: `Data:${companyData}\nQuestion: ${question}?\nAnswer:`,
+      prompt: `${purpouse}\n\n${promtData}\n\n--Sentimiento: ${feeling}\nMensaje: ${inputs[0]}\nRespuesta:`,
       max_tokens: 100,
       temperature: 0.6,
       k: 0,

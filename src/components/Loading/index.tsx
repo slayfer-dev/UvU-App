@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import style from "./index.module.css";
 
 export default function Loading() {
-  const [suspense, setSuspense] = useState<String>("...");
+  const [suspense, setSuspense] = useState<string>("...");
 
   useEffect(() => {
     const interval = setInterval(() => {

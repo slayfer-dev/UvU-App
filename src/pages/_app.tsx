@@ -1,12 +1,11 @@
 import type { AppProps } from "next/app";
 import "../styles/globals.css";
 import { Suspense, useEffect, useState } from "react";
-import Navbar from "@/components/Navbar";
 import Loading from "@/components/Loading";
 import Layout from "@/components/Layout";
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const [loadingState, setLoadingState] = useState<Boolean>(true);
+  const [loadingState, setLoadingState] = useState<boolean>(true);
 
   useEffect(() => {
     setLoadingState(false);

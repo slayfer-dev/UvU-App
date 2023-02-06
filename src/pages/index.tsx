@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import HomeIllustration from "@/assets/illustrations/home-art.svg";
 import Image from "next/image";
 import Link from "next/link";

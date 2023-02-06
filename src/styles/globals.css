@@ -27,3 +27,7 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-primary-alt/80;
 }
+
+textarea {
+  outline: none;
+}
