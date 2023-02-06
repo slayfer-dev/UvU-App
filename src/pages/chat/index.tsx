@@ -3,17 +3,41 @@ import HomeIllustration from "@/assets/illustrations/home-art.svg";
 import Image from "next/image";
 import Link from "next/link";
 
+const data = [
+  {
+    isUser: false,
+    message: "Hola, ¿Cómo estás?",
+    time: new Date(),
+  },
+  {
+    isUser: true,
+    message: "Me siento muy mal",
+    time: new Date(),
+  },
+  {
+    isUser: false,
+    message: "Entiendo, ¿Qué te pasa?",
+    time: new Date(),
+  },
+  {
+    isUser: true,
+    message: "Me volvi puto",
+    time: new Date(),
+  },
+];
+
 export default function Chat() {
   const [toggle, setToggle] = useState<Boolean>(false);
+
   return (
-    <div className="p-10 h-full flex">
+    <div className="p-10 h-full flex m-auto items-center justify-center">
       <div
-        className={`flex flex-col w-full md:w-1/2 lg:w-1/4 bg-white shadow-xl rounded-l-lg overflow-y-auto h-full relative ${
+        className={`flex flex-col w-full md:w-1/2 lg:w-1/4 bg-white shadow-xl rounded-l-lg overflow-y-auto h-full items-center justify-center relative ${
           toggle ? "rounded-r-lg" : "hidden"
         }`}
       >
         {toggle && (
-          <div className="p-5 block md:hidden">
+          <div className="p-5 block md:hidden border-b border-black/20">
             <button onClick={() => setToggle((prev) => !prev)}>
               Volver al chat
             </button>
@@ -46,170 +70,40 @@ export default function Chat() {
           toggle ? "hidden md:block" : "rounded-l-lg"
         }`}
       >
-        <div className="px-5 py-3">
+        <div className="px-5 py-3 border-b border-black/20">
           <button className="" onClick={() => setToggle((prev) => !prev)}>
             Tuerquita
           </button>
         </div>
-        <div className={`flex flex-col h-full p-4 overflow-auto`}>
-          <div className={`flex w-full mt-2 space-x-3 max-w-xs`}>
+        <div className={`flex flex-col h-full p-4 overflow-auto justify-end`}>
+          {data.map((item, i) => (
             <div
-              className={`flex-shrink-0 h-10 w-10 rounded-full bg-gray-300`}
-            ></div>
-            <div>
-              <div className={`bg-gray-300 p-3 rounded-r-lg rounded-bl-lg`}>
-                <p className={`text-sm`}>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                </p>
-              </div>
-              <span className={`text-xs text-gray-500 leading-none`}>
-                2 min ago
-              </span>
-            </div>
-          </div>
-          <div
-            className={`flex w-full mt-2 space-x-3 max-w-xs ml-auto justify-end`}
-          >
-            <div>
+              className={`flex w-full mt-2 space-x-3 max-w-xs ${
+                item.isUser ? " ml-auto justify-end" : ""
+              }`}
+            >
               <div
-                className={`bg-blue-600 text-white p-3 rounded-l-lg rounded-br-lg`}
-              >
-                <p className={`text-sm`}>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod.
-                </p>
+                className={`flex-shrink-0 h-10 w-10 rounded-full bg-gray-300`}
+              ></div>
+              <div>
+                <div
+                  className={`${
+                    item.isUser ? "bg-blue-600 text-white" : "bg-gray-300"
+                  } p-3 rounded-r-lg rounded-bl-lg`}
+                >
+                  <p className={`text-sm`}>{item.message}</p>
+                </div>
+                <span className={`text-xs text-gray-500 leading-none`}>
+                  {"Enviado a las: "}
+                  {item.time.toLocaleTimeString("en-Es", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
+                </span>
               </div>
-              <span className={`text-xs text-gray-500 leading-none`}>
-                2 min ago
-              </span>
             </div>
-            <div
-              className={`flex-shrink-0 h-10 w-10 rounded-full bg-gray-300`}
-            ></div>
-          </div>
-          <div
-            className={`flex w-full mt-2 space-x-3 max-w-xs ml-auto justify-end`}
-          >
-            <div>
-              <div
-                className={`bg-blue-600 text-white p-3 rounded-l-lg rounded-br-lg`}
-              >
-                <p className={`text-sm`}>Lorem ipsum dolor sit amet.</p>
-              </div>
-              <span className={`text-xs text-gray-500 leading-none`}>
-                2 min ago
-              </span>
-            </div>
-            <div
-              className={`flex-shrink-0 h-10 w-10 rounded-full bg-gray-300`}
-            ></div>
-          </div>
-          <div className={`flex w-full mt-2 space-x-3 max-w-xs`}>
-            <div
-              className={`flex-shrink-0 h-10 w-10 rounded-full bg-gray-300`}
-            ></div>
-            <div>
-              <div className={`bg-gray-300 p-3 rounded-r-lg rounded-bl-lg`}>
-                <p className={`text-sm`}>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.{" "}
-                </p>
-              </div>
-              <span className={`text-xs text-gray-500 leading-none`}>
-                2 min ago
-              </span>
-            </div>
-          </div>
-          <div
-            className={`flex w-full mt-2 space-x-3 max-w-xs ml-auto justify-end`}
-          >
-            <div>
-              <div
-                className={`bg-blue-600 text-white p-3 rounded-l-lg rounded-br-lg`}
-              >
-                <p className={`text-sm`}>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.{" "}
-                </p>
-              </div>
-              <span className={`text-xs text-gray-500 leading-none`}>
-                2 min ago
-              </span>
-            </div>
-            <div
-              className={`flex-shrink-0 h-10 w-10 rounded-full bg-gray-300`}
-            ></div>
-          </div>
-          <div
-            className={`flex w-full mt-2 space-x-3 max-w-xs ml-auto justify-end`}
-          >
-            <div>
-              <div
-                className={`bg-blue-600 text-white p-3 rounded-l-lg rounded-br-lg`}
-              >
-                <p className={`text-sm`}>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt.
-                </p>
-              </div>
-              <span className={`text-xs text-gray-500 leading-none`}>
-                2 min ago
-              </span>
-            </div>
-            <div
-              className={`flex-shrink-0 h-10 w-10 rounded-full bg-gray-300`}
-            ></div>
-          </div>
-          <div
-            className={`flex w-full mt-2 space-x-3 max-w-xs ml-auto justify-end`}
-          >
-            <div>
-              <div
-                className={`bg-blue-600 text-white p-3 rounded-l-lg rounded-br-lg`}
-              >
-                <p className={`text-sm`}>Lorem ipsum dolor sit amet.</p>
-              </div>
-              <span className={`text-xs text-gray-500 leading-none`}>
-                2 min ago
-              </span>
-            </div>
-            <div
-              className={`flex-shrink-0 h-10 w-10 rounded-full bg-gray-300`}
-            ></div>
-          </div>
-          <div className={`flex w-full mt-2 space-x-3 max-w-xs`}>
-            <div
-              className={`flex-shrink-0 h-10 w-10 rounded-full bg-gray-300`}
-            ></div>
-            <div>
-              <div className={`bg-gray-300 p-3 rounded-r-lg rounded-bl-lg`}>
-                <p className={`text-sm`}>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.{" "}
-                </p>
-              </div>
-              <span className={`text-xs text-gray-500 leading-none`}>
-                2 min ago
-              </span>
-            </div>
-          </div>
-          <div
-            className={`flex w-full mt-2 space-x-3 max-w-xs ml-auto justify-end`}
-          >
-            <div>
-              <div
-                className={`bg-blue-600 text-white p-3 rounded-l-lg rounded-br-lg`}
-              >
-                <p className={`text-sm`}>Lorem ipsum dolor sit.</p>
-              </div>
-              <span className={`text-xs text-gray-500 leading-none`}>
-                2 min ago
-              </span>
-            </div>
-            <div
-              className={`flex-shrink-0 h-10 w-10 rounded-full bg-gray-300`}
-            ></div>
-          </div>
+          ))}
         </div>
 
         <div className={`bg-gray-300 p-4`}>
