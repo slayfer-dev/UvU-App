@@ -26,7 +26,7 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
             </label>
           </div>
           <div className="flex gap-6 items-center px-2 mx-2 w-full m-auto">
-            <span className="font-semibold text-xl tracking-tight">
+            <span className="font-semibold text-xl tracking-tight relative lg:static top-0 left-0 w-full text-center">
               <Link
                 href="/"
                 className="text-secondary-base no-underline flex gap-2 items-center justify-center"

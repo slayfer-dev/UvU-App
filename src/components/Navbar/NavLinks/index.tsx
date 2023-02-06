@@ -77,14 +77,14 @@ export default function NavLinks({
     return (
       <>
         <NavList orientation={orientation} />
-        <LoginLinks orientation={orientation} />
+        {/* <LoginLinks orientation={orientation} /> */}
       </>
     );
 
   return (
     <>
       <NavList orientation={orientation}>
-        <LoginLinks orientation={orientation} />
+        {/* <LoginLinks orientation={orientation} /> */}
       </NavList>
     </>
   );
