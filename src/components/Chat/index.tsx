@@ -339,7 +339,7 @@ export default function ChatComponent() {
                   ))}
                 </div>
                 <span className={`text-xs text-gray-500 leading-none`}>
-                  {"Escribiendo"}
+                  {"Escribiendo" + ".".repeat(dotNumber + 1)}
                 </span>
               </div>
             </div>
