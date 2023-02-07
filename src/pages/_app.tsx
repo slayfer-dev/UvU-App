@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 import Layout from "@/components/Layout";
 import { AcompañanteProvider, UsuarioProvider } from "@/context";
+import Head from "next/head";
 
 export default function UvUApp({ Component, pageProps }: AppProps) {
   const [loadingState, setLoadingState] = useState<boolean>(true);
@@ -17,16 +18,19 @@ export default function UvUApp({ Component, pageProps }: AppProps) {
     return <Loading />;
   }
   return (
-    <Suspense fallback={<Loading />}>
-      <UsuarioProvider>
-        <AcompañanteProvider>
-          <div className="w-screen flex flex-col h-screen max-h-screen content-center">
-            <Layout>
+    <UsuarioProvider>
+      <AcompañanteProvider>
+        <div className="w-screen flex flex-col h-screen max-h-screen content-center">
+          <Head>
+            <title>UvU App</title>
+          </Head>
+          <Layout>
+            <Suspense fallback={<Loading />}>
               <Component {...pageProps} />
-            </Layout>
-          </div>
-        </AcompañanteProvider>
-      </UsuarioProvider>
-    </Suspense>
+            </Suspense>
+          </Layout>
+        </div>
+      </AcompañanteProvider>
+    </UsuarioProvider>
   );
 }
