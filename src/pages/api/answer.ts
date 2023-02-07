@@ -13,8 +13,7 @@ if (!COHERE_API_KEY) {
 
 cohere.init(COHERE_API_KEY);
 
-let dataIn: { category: string; input: string }[] = [];
-let dataOut: { category: string; input: string; output: string }[] = [];
+let dataLoaded: { category: string; input: string; output: string }[] = [];
 
 const populateData = async () => {
   return fetch(
@@ -23,30 +22,17 @@ const populateData = async () => {
     .then((res) => res.text())
     .then((res) => {
       const matrixData = res
-        .replace(/[-\r]/g, "")
+        .replace(/[-\r.]/g, "")
         .split("\n")
         .map((el) =>
           el.split("\t").map((data) => `${data.replace(/\.$/g, "").trim()}.`)
         )
         .slice(1);
 
-      const formatDataIn = matrixData
+      const formatData = matrixData
         .filter((el) => {
-          const [input] = el;
-          return Boolean(input);
-        })
-        .map((el) => {
-          const [category, input] = el;
-          return {
-            category,
-            input,
-          };
-        });
-
-      const formatDataOut = matrixData
-        .filter((el) => {
-          const [, , output] = el;
-          return Boolean(output);
+          const [category, input, output] = el;
+          return Boolean(output) && Boolean(category) && Boolean(input);
         })
         .map((el) => {
           const [category, input, output] = el;
@@ -57,15 +43,14 @@ const populateData = async () => {
           };
         });
 
-      return { formatDataIn, formatDataOut };
+      return { formatData };
     });
 };
 
 const onInitPopulateData = async () => {
-  const { formatDataIn, formatDataOut } = await populateData();
+  const { formatData } = await populateData();
 
-  dataIn = formatDataIn;
-  dataOut = formatDataOut;
+  dataLoaded = formatData;
 };
 
 setInterval(onInitPopulateData, 1000 * 60 * 60 * 24);
@@ -75,17 +60,16 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   try {
-    const { formatDataIn, formatDataOut } =
-      dataIn.length && dataOut.length
-        ? { formatDataIn: dataIn, formatDataOut: dataOut }
-        : await populateData();
+    const { formatData } = dataLoaded.length
+      ? { formatData: dataLoaded }
+      : await populateData();
 
     const { message } = req.body;
 
     const inputs = [message];
 
     const trainData = [
-      ...formatDataIn
+      ...formatData
         .map((el) => {
           const { category, input } = el;
           return {
@@ -110,37 +94,32 @@ export default async function handler(
         const {
           classifications: [{ prediction, confidence }],
         } = response.body;
-        if (confidence > 0.5) {
-          return prediction;
-        }
-        return "No se";
+        if (confidence >= 0.3 && confidence < 0.5)
+          return { prediction: "Neutro / Apertura", confidence };
+
+        if (confidence >= 0.5) return { prediction, confidence };
+
+        return { prediction: "No se", confidence: 0 };
       });
 
-    const purpouse =
-      `Generar mensajes que puedan ayudar a las personas a sentirse mejor\n\n` +
-      `Sentimiento: No se\n` +
-      `Mensaje: ${inputs[0]}\n` +
-      `Respuesta: Cuentame mas que te estoy acompañando.\n\n--\n` +
-      `Sentimiento: No se\n` +
-      `Mensaje: ${inputs[0]}\n` +
-      `Respuesta: Es algo confuso para mi, pero aqui estoy para ti.\n\n--\n` +
-      `Sentimiento: No se\n` +
-      `Mensaje: ${inputs[0]}\n` +
-      `Respuesta: Quizas me sea dificil entender como te sientes, pero te estare apoyando.\n\n--\n`;
+    const purpouse = `Generar mensajes que puedan ayudar a las personas a sentirse mejor y acompañadas, diciendo cosas como, te leo, estoy aqui para ti y similares.`;
 
-    const promtData = formatDataOut
-      .filter((el) => el.category === feeling)
-      .map((el) => {
-        const { input, output } = el;
-        return `Sentimiento: ${feeling}\nMensaje: ${input}\nRespuesta: ${output}\n\n`;
-      })
-      .join("--\n");
+    const promtData = formatData
+      .filter(
+        (el) =>
+          el.category
+            .toLocaleLowerCase()
+            .includes(feeling.prediction.toLocaleLowerCase()) ||
+          el.category === "No se"
+      )
+      .map((el) => `Sentimientos: ${el.category}\nMensaje: ${el.output}`)
+      .join("\n--\n");
 
     const response = await cohere.generate({
       model: "xlarge",
-      prompt: `${purpouse}\n\n${promtData}\n\n--Sentimiento: ${feeling}\nMensaje: ${inputs[0]}\nRespuesta:`,
+      prompt: `${purpouse}\n--\n${promtData}\n--\nSentimientos: ${feeling.prediction}\nMensaje:`,
       max_tokens: 100,
-      temperature: 0.6,
+      temperature: 0.75,
       k: 0,
       p: 1,
       frequency_penalty: 0,
