@@ -116,7 +116,7 @@ export default async function handler(
       .join("\n--\n");
 
     const response = await cohere.generate({
-      model: "xlarge",
+      model: "medium",
       prompt: `${purpouse}\n--\n${promtData}\n--\nSentimientos: ${feeling.prediction}\nMensaje:`,
       max_tokens: 100,
       temperature: 0.75,
