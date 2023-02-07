@@ -25,7 +25,9 @@ const populateData = async () => {
       const matrixData = res
         .replace(/[-\r]/g, "")
         .split("\n")
-        .map((el) => el.split("\t").map((data) => data.trim()))
+        .map((el) =>
+          el.split("\t").map((data) => `${data.replace(/\.$/g, "").trim()}.`)
+        )
         .slice(1);
 
       const formatDataIn = matrixData
@@ -83,24 +85,26 @@ export default async function handler(
     const inputs = [message];
 
     const trainData = [
-      ...formatDataIn.map((el) => {
-        const { category, input } = el;
-        return {
-          label: category,
-          text: input,
-        };
-      }),
+      ...formatDataIn
+        .map((el) => {
+          const { category, input } = el;
+          return {
+            label: category,
+            text: input,
+          };
+        })
+        .filter(
+          (el, _, arr) =>
+            arr.find((item) => item.label === el.label)?.text !==
+            arr.reverse().find((item) => item.label === el.label)?.text
+        ),
     ];
 
     const feeling = await cohere
       .classify({
         model: "large",
         inputs,
-        examples: trainData.filter(
-          (el, _, arr) =>
-            arr.find((item) => item.label === el.label)?.text !==
-            arr.findLast((item) => item.label === el.label)?.text
-        ),
+        examples: trainData,
       })
       .then((response) => {
         const {
