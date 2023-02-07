@@ -96,10 +96,6 @@ export default function ChatComponent() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     setLoadingState(false);
-    localStorage.setItem(
-      "messages",
-      JSON.stringify([...data, createUvUMessage(res.summary, icon)])
-    );
     setData((prev) => [...prev, createUvUMessage(res.summary, icon)]);
   };
 
@@ -120,6 +116,10 @@ export default function ChatComponent() {
   };
 
   useEffect(() => {
+    if (data.length) localStorage.setItem("messages", JSON.stringify(data));
+  }, [data]);
+
+  useEffect(() => {
     const timeout = setTimeout(() => {
       setLoadingState(false);
     }, 1000);
@@ -132,11 +132,12 @@ export default function ChatComponent() {
   useEffect(() => {
     if (name && !acompañanteLoaded) {
       const timeout = setTimeout(() => {
-        const messages =
+        const messages: IDataMessages[] =
           JSON.parse(localStorage.getItem("messages") ?? "[]") ?? [];
 
-        if (messages.length > 0) setData(messages);
-        else setData((prev) => [...prev, STARTER_MESSAGES(name, icon)]);
+        if (messages.length > 0) {
+          setData(messages);
+        } else setData((prev) => [...prev, STARTER_MESSAGES(name, icon)]);
 
         setAcompañanteLoaded(true);
       }, 1000);

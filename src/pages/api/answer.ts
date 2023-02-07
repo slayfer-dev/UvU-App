@@ -16,6 +16,7 @@ cohere.init(COHERE_API_KEY);
 let dataLoaded: { category: string; input: string; output: string }[] = [];
 
 const populateData = async () => {
+  console.log("Poblando datos...");
   return fetch(
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_YApcplKoBDVQiiSAU9CYpnNks0QD5IPmBhlw5t_QdQmywB5o2T8HjuxJAvM6RvKtNBCWdDBvBuir/pub?output=tsv"
   )
@@ -53,6 +54,8 @@ const onInitPopulateData = async () => {
   dataLoaded = formatData;
 };
 
+onInitPopulateData();
+
 setInterval(onInitPopulateData, 1000 * 60 * 60 * 24);
 
 export default async function handler(
@@ -60,13 +63,19 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   try {
+    console.time("Populate data");
+
     const { formatData } = dataLoaded.length
       ? { formatData: dataLoaded }
       : await populateData();
 
+    console.timeEnd("Populate data");
+
     const { message } = req.body;
 
     const inputs = [message];
+
+    console.time("Train data");
 
     const trainData = [
       ...formatData
@@ -84,9 +93,13 @@ export default async function handler(
         ),
     ];
 
+    console.timeEnd("Train data");
+
+    console.time("Classify feeling");
+
     const feeling = await cohere
       .classify({
-        model: "large",
+        model: "small",
         inputs,
         examples: trainData,
       })
@@ -94,15 +107,19 @@ export default async function handler(
         const {
           classifications: [{ prediction, confidence }],
         } = response.body;
-        if (confidence >= 0.3 && confidence < 0.5)
+        if (confidence >= 0.25 && confidence < 0.4)
           return { prediction: "Neutro / Apertura", confidence };
 
         if (confidence >= 0.5) return { prediction, confidence };
 
-        return { prediction: "No se", confidence: 0 };
+        return { prediction: "No se", confidence };
       });
 
+    console.timeEnd("Classify feeling");
+
     const purpouse = `Generar mensajes que puedan ayudar a las personas a sentirse mejor y acompañadas, diciendo cosas como, te leo, estoy aqui para ti y similares.`;
+
+    console.time("Create prompt data");
 
     const promtData = formatData
       .filter(
@@ -115,12 +132,16 @@ export default async function handler(
       .map((el) => `Sentimientos: ${el.category}\nMensaje: ${el.output}`)
       .join("\n--\n");
 
+    console.timeEnd("Create prompt data");
+
+    console.time("Generate message");
+
     const response = await cohere.generate({
-      model: "medium",
+      model: "xlarge",
       prompt: `${purpouse}\n--\n${promtData}\n--\nSentimientos: ${feeling.prediction}\nMensaje:`,
-      max_tokens: 100,
-      temperature: 0.75,
-      k: 0,
+      max_tokens: 80,
+      temperature: 0.8,
+      k: 80,
       p: 1,
       frequency_penalty: 0,
       presence_penalty: 0,
@@ -128,9 +149,11 @@ export default async function handler(
       return_likelihoods: "NONE",
     });
 
-    res
-      .status(200)
-      .json({ summary: response.body.generations[0].text.slice(0, -3) });
+    console.timeEnd("Generate message");
+
+    res.status(200).json({
+      summary: response.body.generations[0].text.slice(0, -3).split(".")[0],
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ summary: "Error" });
