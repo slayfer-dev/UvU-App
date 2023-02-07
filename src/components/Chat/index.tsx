@@ -41,10 +41,7 @@ const CHANGE_MESSAGE = (
   icon,
 });
 
-const createUserMessage = (
-  message: string,
-  icon: string | StaticImageData
-) => ({
+const createUvUMessage = (message: string, icon: string | StaticImageData) => ({
   isUser: false,
   message,
   time: new Date(),
@@ -101,21 +98,23 @@ export default function ChatComponent() {
     setLoadingState(false);
     localStorage.setItem(
       "messages",
-      JSON.stringify([...data, createUserMessage(res.summary, icon)])
+      JSON.stringify([...data, createUvUMessage(res.summary, icon)])
     );
-    setData((prev) => [...prev, createUserMessage(res.summary, icon)]);
+    setData((prev) => [...prev, createUvUMessage(res.summary, icon)]);
   };
 
   const sendMessage = (message: string) => {
-    setData((prev) => [
-      ...prev,
-      {
-        isUser: true,
-        message,
-        time: new Date(),
-        icon: userIcon,
-      },
-    ]);
+    setData((prev) =>
+      [
+        ...prev,
+        {
+          isUser: true,
+          message,
+          time: new Date(),
+          icon: userIcon,
+        },
+      ].map((item) => ({ ...item, icon: item.isUser ? userIcon : icon }))
+    );
 
     getMessage(message);
   };
@@ -212,10 +211,10 @@ export default function ChatComponent() {
               <div className={`flex w-full mt-2 space-x-3 max-w-xs`}>
                 <Image
                   src={avatar.icon}
-                  alt={"Acompañante"}
+                  alt={"Avatars"}
                   width={50}
                   height={50}
-                  className={`flex-shrink-0 h-10 w-10 rounded-full bg-gray-300 p-1`}
+                  className={`flex-shrink-0 h-10 w-10 rounded-full bg-gray-300`}
                 />
                 <div>
                   <div className={`bg-gray-300 p-3 rounded-r-lg rounded-bl-lg`}>
@@ -313,9 +312,13 @@ export default function ChatComponent() {
           ))}
           {loadingState && (
             <div className={`flex w-full mt-2 space-x-3 max-w-xs $`}>
-              <div
+              <Image
+                src={icon}
+                alt={"User"}
+                width={50}
+                height={50}
                 className={`flex-shrink-0 h-10 w-10 rounded-full bg-gray-300`}
-              ></div>
+              />
               <div>
                 <div
                   className={`bg-gray-300 px-3 py-1 rounded-r-lg rounded-bl-lg flex items-center justify-center`}
