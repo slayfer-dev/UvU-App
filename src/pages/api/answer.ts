@@ -16,7 +16,6 @@ cohere.init(COHERE_API_KEY);
 let dataLoaded: { category: string; input: string; output: string }[] = [];
 
 const populateData = async () => {
-  console.log("Poblando datos...");
   return fetch(
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_YApcplKoBDVQiiSAU9CYpnNks0QD5IPmBhlw5t_QdQmywB5o2T8HjuxJAvM6RvKtNBCWdDBvBuir/pub?output=tsv"
   )
@@ -139,9 +138,9 @@ export default async function handler(
     const response = await cohere.generate({
       model: "xlarge",
       prompt: `${purpouse}\n--\n${promtData}\n--\nSentimientos: ${feeling.prediction}\nMensaje:`,
-      max_tokens: 80,
+      max_tokens: 180,
       temperature: 0.8,
-      k: 80,
+      k: 60,
       p: 1,
       frequency_penalty: 0,
       presence_penalty: 0,
