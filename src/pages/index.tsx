@@ -31,7 +31,11 @@ export default function Home() {
         className={`relative lg:absolute bottom-0 left-0 p-5 w-full z-0`}
         role={"illustrations"}
       >
-        <div className="hidden absolute lg:block lg:fixed bg-primary-200 w-full h-1/2 top-1/2 left-0 -z-10"></div>
+        <div
+          className={
+            "block absolute w-full h-1/5 bottom-0 left-0 -z-10 horizontal-gradient"
+          }
+        />
         <Image
           src={HomeIllustration}
           alt="Home Illustration"

@@ -3,8 +3,9 @@ import "../styles/globals.css";
 import { Suspense, useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 import Layout from "@/components/Layout";
+import { AcompañanteProvider, UsuarioProvider } from "@/context";
 
-function MyApp({ Component, pageProps }: AppProps) {
+export default function UvUApp({ Component, pageProps }: AppProps) {
   const [loadingState, setLoadingState] = useState<boolean>(true);
 
   useEffect(() => {
@@ -16,14 +17,16 @@ function MyApp({ Component, pageProps }: AppProps) {
     return <Loading />;
   }
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <div className="w-screen flex flex-col h-screen max-h-screen content-center">
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </div>
+    <Suspense fallback={<Loading />}>
+      <UsuarioProvider>
+        <AcompañanteProvider>
+          <div className="w-screen flex flex-col h-screen max-h-screen content-center">
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </div>
+        </AcompañanteProvider>
+      </UsuarioProvider>
     </Suspense>
   );
 }
-
-export default MyApp;

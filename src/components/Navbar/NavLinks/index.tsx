@@ -49,14 +49,14 @@ function NavList({
           {"Nosotros"}
         </Link>
       </li>
-      <li>
+      {/* <li>
         <Link
           href="/contact"
           className="block m-1 lg:inline-block lg:mt-0 bg-primary-200 hover:text-primary-base p-1 rounded-lg min-w-[90px] text-center"
         >
           {"Contactanos"}
         </Link>
-      </li>
+      </li> */}
       <div className="block m-1 lg:inline-block lg:mt-0 bg-primary-200 hover:text-primary-base p-1 rounded-lg min-w-[90px] text-center">
         {dateState.toLocaleTimeString("en-EN", {
           hour: "numeric",

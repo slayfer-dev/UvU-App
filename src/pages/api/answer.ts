@@ -96,7 +96,11 @@ export default async function handler(
       .classify({
         model: "large",
         inputs,
-        examples: trainData,
+        examples: trainData.filter(
+          (el, _, arr) =>
+            arr.find((item) => item.label === el.label)?.text !==
+            arr.findLast((item) => item.label === el.label)?.text
+        ),
       })
       .then((response) => {
         const {

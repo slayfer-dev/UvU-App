@@ -1,5 +1,7 @@
 import Link from "next/link";
 import NavLinks from "./NavLinks";
+import { Suspense } from "react";
+import Loading from "../Loading";
 
 export default function Navbar({ children }: { children: React.ReactNode }) {
   return (
@@ -43,8 +45,11 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         </div>
-        <main role={"main"} className={`mt-0 md:mt-6 h-[calc(100vh-8rem)]`}>
-          {children}
+        <main
+          role={"main"}
+          className={`mt-0 md:mt-6 h-[calc(100vh-6rem)] lg:h-[calc(100vh-8rem)]`}
+        >
+          <Suspense fallback={<Loading />}>{children}</Suspense>
         </main>
       </section>
       <section

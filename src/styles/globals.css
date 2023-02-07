@@ -31,3 +31,7 @@ body {
 textarea {
   outline: none;
 }
+
+.horizontal-gradient {
+  background: linear-gradient(to right, #005b97, #abc5f2);
+}
